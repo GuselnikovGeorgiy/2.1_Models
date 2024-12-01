@@ -29,6 +29,8 @@ class Author(BaseModel):
     )
     name_author: Mapped[str] = mapped_column(unique=True)
 
+    book: Mapped["Book"] = relationship("Book", back_populates="genre")
+
 
 class Book(BaseModel):
     """Название книги, цена, количество на складе, id жанра и автора"""
