@@ -1,11 +1,11 @@
 from datetime import date
 from database import BaseModel
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Genre(BaseModel):
-    """Название жанра"""
+    """Название жанра книги"""
 
     __tablename__ = "genres"
 
@@ -16,20 +16,22 @@ class Genre(BaseModel):
     )
     name_genre: Mapped[str] = mapped_column(unique=True)
 
-    book: Mapped["Book"] = relationship("Book", back_populates="genre")
+    books: Mapped[list["Book"]] = relationship("Book", back_populates="genre")
 
 
 class Author(BaseModel):
-    """Автор"""
+    """Автор книги"""
 
     __tablename__ = "authors"
 
     author_id: Mapped[int] = mapped_column(
-        primary_key=True, autoincrement=True, unique=True
+        primary_key=True, 
+        autoincrement=True, 
+        unique=True,
     )
     name_author: Mapped[str] = mapped_column(unique=True)
 
-    book: Mapped["Book"] = relationship("Book", back_populates="genre")
+    books: Mapped[list["Book"]] = relationship("Book", back_populates="author")
 
 
 class Book(BaseModel):
@@ -40,11 +42,11 @@ class Book(BaseModel):
     book_id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, unique=True
     )
-    title: Mapped[str]
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.author_id"))
     genre_id: Mapped[int] = mapped_column(ForeignKey("genres.genre_id"))
-    price: Mapped[float]
-    amount: Mapped[int]
+    price: Mapped[float] = mapped_column(nullable=False)
+    amount: Mapped[int] = mapped_column(nullable=False)
 
     author: Mapped["Author"] = relationship("Author", back_populates="books")
     genre: Mapped["Genre"] = relationship("Genre", back_populates="books")
@@ -62,7 +64,7 @@ class City(BaseModel):
     name_city: Mapped[str] = mapped_column(unique=True)
     days_delivery: Mapped[int]
 
-    client: Mapped["Client"] = relationship("Client", back_populates="city")
+    clients: Mapped[list["Client"]] = relationship("Client", back_populates="city")
 
 
 class Client(BaseModel):
@@ -87,9 +89,11 @@ class Buy(BaseModel):
     __tablename__ = "buys"
 
     buy_id: Mapped[int] = mapped_column(
-        primary_key=True, autoincrement=True, unique=True
+        primary_key=True, 
+        autoincrement=True, 
+        unique=True,
     )
-    buy_description: Mapped[str]
+    buy_description: Mapped[str] = mapped_column(String(255))
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.client_id"))
 
     client: Mapped["Client"] = relationship("Client", back_populates="buys")
@@ -136,8 +140,8 @@ class BuyStep(BaseModel):
     )
     buy_id: Mapped[int] = mapped_column(ForeignKey("buys.buy_id"))
     step_id: Mapped[int] = mapped_column(ForeignKey("steps.step_id"))
-    date_step_beg: Mapped[date]
-    date_step_end: Mapped[date]
+    date_step_beg: Mapped[date] = mapped_column(nullable=False)
+    date_step_end: Mapped[date] = mapped_column(nullable=False)
 
     buy: Mapped["Buy"] = relationship("Buy", back_populates="buy_steps")
     step: Mapped["Step"] = relationship("Step", back_populates="buy_steps")
